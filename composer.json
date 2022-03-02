@@ -1,6 +1,6 @@
 {
-    "name": "ttek-plg/plg-rating",
-    "type": "ttek-plugin",
+    "name": "uom-plg/plg-rating",
+    "type": "uom-plugin",
     "description": "EMS Company Star Rating plugin",
     "keywords":  [
         "tropotek",

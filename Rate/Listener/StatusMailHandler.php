@@ -1,6 +1,7 @@
 <?php
 namespace Rate\Listener;
 
+use Tk\ConfigTrait;
 use Tk\Event\Subscriber;
 
 
@@ -11,18 +12,21 @@ use Tk\Event\Subscriber;
  */
 class StatusMailHandler implements Subscriber
 {
+    use ConfigTrait;
 
     /**
-     * @param \Uni\Event\StatusEvent $event
+     * @param \Bs\Event\StatusEvent $event
      * @throws \Exception
      */
-    public function onSendStatusMessage(\Uni\Event\StatusEvent $event)
+    public function onSendStatusMessage(\Bs\Event\StatusEvent $event)
     {
         // do not send messages
-        if (!$event->getStatus()->isNotify() || !$event->getStatus()->getCourse()->getCourseProfile()->isNotifications()) {
-            \Tk\Log::warning('onSendStatusMessage: Status Notification Disabled');
+        $course = \Uni\Util\Status::getCourse($event->getStatus());
+        if (!$event->getStatus()->isNotify() || ($course && !$course->getCourseProfile()->isNotifications())) {
+            \Tk\Log::debug('Skill::onSendAllStatusMessages: Status Notification Disabled');
             return;
         }
+        $subject = \Uni\Util\Status::getSubject($event->getStatus());
 
         /** @var \Tk\Mail\CurlyMessage $message */
         foreach ($event->getMessageList() as $message) {
@@ -81,7 +85,7 @@ class StatusMailHandler implements Subscriber
     public static function getSubscribedEvents()
     {
         return array(
-            \Uni\StatusEvents::STATUS_CHANGE => array('onSendStatusMessage', 0),
+            \Bs\StatusEvents::STATUS_CHANGE => array('onSendStatusMessage', 0),
             \App\AppEvents::COMPANY_COMMENT_REPORT => array('onCommentReport', 0)
         );
     }
